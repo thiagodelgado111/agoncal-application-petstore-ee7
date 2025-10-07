@@ -20,7 +20,7 @@ public abstract class AbstractService<T>
    // =             Attributes             =
    // ======================================
 
-   @PersistenceContext(unitName = "applicationPetstorePU")
+   @PersistenceContext
    protected EntityManager entityManager;
 
    private Class<T> entityClass;

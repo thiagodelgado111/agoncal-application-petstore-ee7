@@ -6,8 +6,9 @@ import org.agoncal.application.petstore.model.Product;
 import org.agoncal.application.petstore.util.Loggable;
 
 import org.springframework.stereotype.Service;
-import jakarta.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -27,7 +28,7 @@ public class CatalogService implements Serializable {
     // =             Attributes             =
     // ======================================
 
-    @Inject
+    @PersistenceContext
     private EntityManager em;
 
     // ======================================

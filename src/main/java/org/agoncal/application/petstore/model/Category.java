@@ -3,7 +3,6 @@ package org.agoncal.application.petstore.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -20,7 +19,6 @@ import java.util.Objects;
          @NamedQuery(name = Category.FIND_BY_NAME, query = "SELECT c FROM Category c WHERE c.name = :pname"),
          @NamedQuery(name = Category.FIND_ALL, query = "SELECT c FROM Category c")
 })
-@XmlRootElement
 public class Category implements Serializable
 {
 

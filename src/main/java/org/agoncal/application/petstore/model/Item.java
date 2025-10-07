@@ -6,8 +6,6 @@ import org.agoncal.application.petstore.constraints.Price;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -22,7 +20,6 @@ import java.util.Objects;
          @NamedQuery(name = Item.SEARCH, query = "SELECT i FROM Item i WHERE UPPER(i.name) LIKE :keyword OR UPPER(i.product.name) LIKE :keyword ORDER BY i.product.category.name, i.product.name"),
          @NamedQuery(name = Item.FIND_ALL, query = "SELECT i FROM Item i")
 })
-@XmlRootElement
 public class Item implements Serializable
 {
 
@@ -59,7 +56,6 @@ public class Item implements Serializable
 
    @ManyToOne(cascade = CascadeType.PERSIST)
    @JoinColumn(name = "product_fk", nullable = false)
-   @XmlTransient
    private Product product;
 
    // ======================================

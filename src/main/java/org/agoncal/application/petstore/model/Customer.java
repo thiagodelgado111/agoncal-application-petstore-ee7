@@ -8,7 +8,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.util.*;
@@ -25,7 +24,6 @@ import java.util.*;
          @NamedQuery(name = Customer.FIND_BY_UUID, query = "SELECT c FROM Customer c WHERE c.uuid = :uuid"),
          @NamedQuery(name = Customer.FIND_ALL, query = "SELECT c FROM Customer c")
 })
-@XmlRootElement
 public class Customer implements Serializable
 {
 
