@@ -1,16 +1,16 @@
 package org.agoncal.application.petstore.rest;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.agoncal.application.petstore.model.Customer;
 import org.agoncal.application.petstore.util.Loggable;
 
-import javax.ejb.Stateless;
-import javax.persistence.*;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import jakarta.persistence.*;
+import org.springframework.transaction.annotation.Transactional;
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -19,10 +19,11 @@ import java.util.List;
  *         --
  */
 
-@Stateless
-@Path("/customers")
+@RestController
+@RequestMapping("/rest/customers")
 @Loggable
-@Api("Customer")
+@Tag(name = "Customer")
+@Transactional
 public class CustomerEndpoint
 {
 
@@ -30,41 +31,37 @@ public class CustomerEndpoint
    // =             Attributes             =
    // ======================================
 
-   @PersistenceContext(unitName = "applicationPetstorePU")
+   @PersistenceContext
    private EntityManager em;
 
    // ======================================
    // =          Business methods          =
    // ======================================
 
-   @POST
-   @Consumes( {"application/xml", "application/json"})
-   @ApiOperation("Creates a customer")
-   public Response create(Customer entity)
+   @PostMapping
+   @Operation(summary = "Creates a customer")
+   public ResponseEntity<Customer> create(@RequestBody Customer entity)
    {
       em.persist(entity);
-      return Response.created(UriBuilder.fromResource(CustomerEndpoint.class).path(String.valueOf(entity.getId())).build()).build();
+      return ResponseEntity.created(URI.create("/rest/customers/" + entity.getId())).body(entity);
    }
 
-   @DELETE
-   @Path("/{id:[0-9][0-9]*}")
-   @ApiOperation("Deletes a customer by id")
-   public Response deleteById(@PathParam("id") Long id)
+   @DeleteMapping("/{id}")
+   @Operation(summary = "Deletes a customer by id")
+   public ResponseEntity<Void> deleteById(@PathVariable("id") Long id)
    {
       Customer entity = em.find(Customer.class, id);
       if (entity == null)
       {
-         return Response.status(Status.NOT_FOUND).build();
+         return ResponseEntity.notFound().build();
       }
       em.remove(entity);
-      return Response.noContent().build();
+      return ResponseEntity.noContent().build();
    }
 
-   @GET
-   @Path("/{id:[0-9][0-9]*}")
-   @Produces( {"application/xml", "application/json"})
-   @ApiOperation("Finds a customer by it identifier")
-   public Response findById(@PathParam("id") Long id)
+   @GetMapping("/{id}")
+   @Operation(summary = "Finds a customer by it identifier")
+   public ResponseEntity<Customer> findById(@PathVariable("id") Long id)
    {
       TypedQuery<Customer> findByIdQuery = em.createQuery("SELECT DISTINCT c FROM Customer c LEFT JOIN FETCH c.homeAddress.country WHERE c.id = :entityId ORDER BY c.id", Customer.class);
       findByIdQuery.setParameter("entityId", id);
@@ -79,44 +76,40 @@ public class CustomerEndpoint
       }
       if (entity == null)
       {
-         return Response.status(Status.NOT_FOUND).build();
+         return ResponseEntity.notFound().build();
       }
-      return Response.ok(entity).build();
+      return ResponseEntity.ok(entity);
    }
 
-   @GET
-   @Produces( {"application/xml", "application/json"})
-   @ApiOperation("Lists all the customers")
-   public List<Customer> listAll(@QueryParam("start") Integer startPosition, @QueryParam("max") Integer maxResult)
+   @GetMapping
+   @Operation(summary = "Lists all the customers")
+   public List<Customer> listAll(@RequestParam(required = false) Integer start, @RequestParam(required = false) Integer max)
    {
       TypedQuery<Customer> findAllQuery = em.createQuery("SELECT DISTINCT c FROM Customer c LEFT JOIN FETCH c.homeAddress.country ORDER BY c.id", Customer.class);
-      if (startPosition != null)
+      if (start != null)
       {
-         findAllQuery.setFirstResult(startPosition);
+         findAllQuery.setFirstResult(start);
       }
-      if (maxResult != null)
+      if (max != null)
       {
-         findAllQuery.setMaxResults(maxResult);
+         findAllQuery.setMaxResults(max);
       }
       final List<Customer> results = findAllQuery.getResultList();
       return results;
    }
 
-   @PUT
-   @Path("/{id:[0-9][0-9]*}")
-   @Consumes( {"application/xml", "application/json"})
-   @ApiOperation("Updates a customer")
-   public Response update(Customer entity)
+   @PutMapping("/{id}")
+   @Operation(summary = "Updates a customer")
+   public ResponseEntity<Customer> update(@PathVariable("id") Long id, @RequestBody Customer entity)
    {
       try
       {
          entity = em.merge(entity);
+         return ResponseEntity.ok(entity);
       }
       catch (OptimisticLockException e)
       {
-         return Response.status(Response.Status.CONFLICT).entity(e.getEntity()).build();
+         return ResponseEntity.status(HttpStatus.CONFLICT).build();
       }
-
-      return Response.noContent().build();
    }
 }

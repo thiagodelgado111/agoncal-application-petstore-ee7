@@ -5,13 +5,12 @@ import org.agoncal.application.petstore.model.*;
 import org.agoncal.application.petstore.util.Loggable;
 import org.agoncal.application.petstore.view.shopping.ShoppingCartItem;
 
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.validation.constraints.NotNull;
+import org.springframework.stereotype.Service;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,8 +23,7 @@ import java.util.Set;
  *         --
  */
 
-@Stateless
-@LocalBean
+@Service
 @Loggable
 public class PurchaseOrderService extends AbstractService<PurchaseOrder>implements Serializable
 {

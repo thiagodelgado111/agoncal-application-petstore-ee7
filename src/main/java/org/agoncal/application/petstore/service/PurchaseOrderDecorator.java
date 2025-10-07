@@ -2,7 +2,7 @@ package org.agoncal.application.petstore.service;
 
 import org.agoncal.application.petstore.service.ComputablePurchaseOrder;
 import javax.decorator.Decorator;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.decorator.Delegate;
 
 @Decorator

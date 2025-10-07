@@ -6,7 +6,7 @@ import org.agoncal.application.petstore.model.Product;
 import org.agoncal.application.petstore.util.Loggable;
 
 import javax.ejb.Stateless;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;

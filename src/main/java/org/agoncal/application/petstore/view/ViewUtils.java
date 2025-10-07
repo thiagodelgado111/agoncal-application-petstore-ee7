@@ -1,6 +1,6 @@
 package org.agoncal.application.petstore.view;
 
-import javax.persistence.Id;
+import jakarta.persistence.Id;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

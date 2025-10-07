@@ -3,8 +3,8 @@ package org.agoncal.application.petstore.security;
 import org.agoncal.application.petstore.view.shopping.CredentialsBean;
 
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;

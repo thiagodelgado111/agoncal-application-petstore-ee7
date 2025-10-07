@@ -3,18 +3,16 @@ package org.agoncal.application.petstore.service;
 import org.agoncal.application.petstore.model.Item;
 import org.agoncal.application.petstore.model.Product;
 
-import javax.ejb.Stateless;
-import javax.ejb.LocalBean;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import org.springframework.stereotype.Service;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.agoncal.application.petstore.util.Loggable;
 
-@Stateless
-@LocalBean
+@Service
 @Loggable
 public class ItemService extends AbstractService<Item> implements Serializable
 {
