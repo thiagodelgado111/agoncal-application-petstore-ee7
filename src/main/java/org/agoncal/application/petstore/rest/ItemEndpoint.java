@@ -1,16 +1,16 @@
 package org.agoncal.application.petstore.rest;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.agoncal.application.petstore.model.Item;
 import org.agoncal.application.petstore.util.Loggable;
 
-import javax.ejb.Stateless;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import jakarta.persistence.*;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
+import org.springframework.transaction.annotation.Transactional;
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -19,10 +19,11 @@ import java.util.List;
  *         --
  */
 
-@Stateless
-@Path("/items")
+@RestController
+@RequestMapping("/rest/items")
 @Loggable
-@Api("Item")
+@Tag(name = "Item")
+@Transactional
 public class ItemEndpoint
 {
 
@@ -30,41 +31,37 @@ public class ItemEndpoint
    // =             Attributes             =
    // ======================================
 
-   @PersistenceContext(unitName = "applicationPetstorePU")
+   @PersistenceContext
    private EntityManager em;
 
    // ======================================
    // =          Business methods          =
    // ======================================
 
-   @POST
-   @Consumes( {"application/xml", "application/json"})
-   @ApiOperation("Creates a new item")
-   public Response create(Item entity)
+   @PostMapping
+   @Operation(summary = "Creates a new item")
+   public ResponseEntity<Item> create(@RequestBody Item entity)
    {
       em.persist(entity);
-      return Response.created(UriBuilder.fromResource(ItemEndpoint.class).path(String.valueOf(entity.getId())).build()).build();
+      return ResponseEntity.created(URI.create("/rest/items/" + entity.getId())).body(entity);
    }
 
-   @DELETE
-   @Path("/{id:[0-9][0-9]*}")
-   @ApiOperation("Deletes an item by its id")
-   public Response deleteById(@PathParam("id") Long id)
+   @DeleteMapping("/{id}")
+   @Operation(summary = "Deletes an item by its id")
+   public ResponseEntity<Void> deleteById(@PathVariable("id") Long id)
    {
       Item entity = em.find(Item.class, id);
       if (entity == null)
       {
-         return Response.status(Status.NOT_FOUND).build();
+         return ResponseEntity.notFound().build();
       }
       em.remove(entity);
-      return Response.noContent().build();
+      return ResponseEntity.noContent().build();
    }
 
-   @GET
-   @Path("/{id:[0-9][0-9]*}")
-   @Produces( {"application/xml", "application/json"})
-   @ApiOperation("Finds an item by its id")
-   public Response findById(@PathParam("id") Long id)
+   @GetMapping("/{id}")
+   @Operation(summary = "Finds an item by its id")
+   public ResponseEntity<Item> findById(@PathVariable("id") Long id)
    {
       TypedQuery<Item> findByIdQuery = em.createQuery("SELECT DISTINCT i FROM Item i LEFT JOIN FETCH i.product WHERE i.id = :entityId ORDER BY i.id", Item.class);
       findByIdQuery.setParameter("entityId", id);
@@ -79,44 +76,40 @@ public class ItemEndpoint
       }
       if (entity == null)
       {
-         return Response.status(Status.NOT_FOUND).build();
+         return ResponseEntity.notFound().build();
       }
-      return Response.ok(entity).build();
+      return ResponseEntity.ok(entity);
    }
 
-   @GET
-   @Produces( {"application/xml", "application/json"})
-   @ApiOperation("Lists all items")
-   public List<Item> listAll(@QueryParam("start") Integer startPosition, @QueryParam("max") Integer maxResult)
+   @GetMapping
+   @Operation(summary = "Lists all items")
+   public List<Item> listAll(@RequestParam(required = false) Integer start, @RequestParam(required = false) Integer max)
    {
       TypedQuery<Item> findAllQuery = em.createQuery("SELECT DISTINCT i FROM Item i LEFT JOIN FETCH i.product ORDER BY i.id", Item.class);
-      if (startPosition != null)
+      if (start != null)
       {
-         findAllQuery.setFirstResult(startPosition);
+         findAllQuery.setFirstResult(start);
       }
-      if (maxResult != null)
+      if (max != null)
       {
-         findAllQuery.setMaxResults(maxResult);
+         findAllQuery.setMaxResults(max);
       }
       final List<Item> results = findAllQuery.getResultList();
       return results;
    }
 
-   @PUT
-   @Path("/{id:[0-9][0-9]*}")
-   @Consumes( {"application/xml", "application/json"})
-   @ApiOperation("Updates an item")
-   public Response update(Item entity)
+   @PutMapping("/{id}")
+   @Operation(summary = "Updates an item")
+   public ResponseEntity<Item> update(@PathVariable("id") Long id, @RequestBody Item entity)
    {
       try
       {
          entity = em.merge(entity);
+         return ResponseEntity.ok(entity);
       }
       catch (OptimisticLockException e)
       {
-         return Response.status(Response.Status.CONFLICT).entity(e.getEntity()).build();
+         return ResponseEntity.status(HttpStatus.CONFLICT).build();
       }
-
-      return Response.noContent().build();
    }
 }
