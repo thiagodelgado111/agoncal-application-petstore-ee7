@@ -1,16 +1,16 @@
 package org.agoncal.application.petstore.rest;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.agoncal.application.petstore.model.Country;
 import org.agoncal.application.petstore.util.Loggable;
 
-import javax.ejb.Stateless;
-import javax.persistence.*;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import jakarta.persistence.*;
+import org.springframework.transaction.annotation.Transactional;
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -19,10 +19,11 @@ import java.util.List;
  *         --
  */
 
-@Stateless
-@Path("/countries")
+@RestController
+@RequestMapping("/rest/countries")
 @Loggable
-@Api("Country")
+@Tag(name = "Country")
+@Transactional
 public class CountryEndpoint
 {
 
@@ -30,41 +31,37 @@ public class CountryEndpoint
    // =             Attributes             =
    // ======================================
 
-   @PersistenceContext(unitName = "applicationPetstorePU")
+   @PersistenceContext
    private EntityManager em;
 
    // ======================================
    // =          Business methods          =
    // ======================================
 
-   @POST
-   @Consumes( {"application/xml", "application/json"})
-   @ApiOperation("Creates a country")
-   public Response create(Country entity)
+   @PostMapping
+   @Operation(summary = "Creates a country")
+   public ResponseEntity<Country> create(@RequestBody Country entity)
    {
       em.persist(entity);
-      return Response.created(UriBuilder.fromResource(CountryEndpoint.class).path(String.valueOf(entity.getId())).build()).build();
+      return ResponseEntity.created(URI.create("/rest/countries/" + entity.getId())).body(entity);
    }
 
-   @DELETE
-   @Path("/{id:[0-9][0-9]*}")
-   @ApiOperation("Deletes a country given an id")
-   public Response deleteById(@PathParam("id") Long id)
+   @DeleteMapping("/{id}")
+   @Operation(summary = "Deletes a country given an id")
+   public ResponseEntity<Void> deleteById(@PathVariable("id") Long id)
    {
       Country entity = em.find(Country.class, id);
       if (entity == null)
       {
-         return Response.status(Status.NOT_FOUND).build();
+         return ResponseEntity.notFound().build();
       }
       em.remove(entity);
-      return Response.noContent().build();
+      return ResponseEntity.noContent().build();
    }
 
-   @GET
-   @Path("/{id:[0-9][0-9]*}")
-   @Produces( {"application/xml", "application/json"})
-   @ApiOperation("Retrieves a country by its id")
-   public Response findById(@PathParam("id") Long id)
+   @GetMapping("/{id}")
+   @Operation(summary = "Retrieves a country by its id")
+   public ResponseEntity<Country> findById(@PathVariable("id") Long id)
    {
       TypedQuery<Country> findByIdQuery = em.createQuery("SELECT DISTINCT c FROM Country c WHERE c.id = :entityId ORDER BY c.id", Country.class);
       findByIdQuery.setParameter("entityId", id);
@@ -79,44 +76,40 @@ public class CountryEndpoint
       }
       if (entity == null)
       {
-         return Response.status(Status.NOT_FOUND).build();
+         return ResponseEntity.notFound().build();
       }
-      return Response.ok(entity).build();
+      return ResponseEntity.ok(entity);
    }
 
-   @GET
-   @Produces( {"application/xml", "application/json"})
-   @ApiOperation("Lists all the countries")
-   public List<Country> listAll(@QueryParam("start") Integer startPosition, @QueryParam("max") Integer maxResult)
+   @GetMapping
+   @Operation(summary = "Lists all the countries")
+   public List<Country> listAll(@RequestParam(required = false) Integer start, @RequestParam(required = false) Integer max)
    {
       TypedQuery<Country> findAllQuery = em.createQuery("SELECT DISTINCT c FROM Country c ORDER BY c.id", Country.class);
-      if (startPosition != null)
+      if (start != null)
       {
-         findAllQuery.setFirstResult(startPosition);
+         findAllQuery.setFirstResult(start);
       }
-      if (maxResult != null)
+      if (max != null)
       {
-         findAllQuery.setMaxResults(maxResult);
+         findAllQuery.setMaxResults(max);
       }
       final List<Country> results = findAllQuery.getResultList();
       return results;
    }
 
-   @PUT
-   @Path("/{id:[0-9][0-9]*}")
-   @Consumes( {"application/xml", "application/json"})
-   @ApiOperation("Updates a country")
-   public Response update(Country entity)
+   @PutMapping("/{id}")
+   @Operation(summary = "Updates a country")
+   public ResponseEntity<Country> update(@PathVariable("id") Long id, @RequestBody Country entity)
    {
       try
       {
          entity = em.merge(entity);
+         return ResponseEntity.ok(entity);
       }
       catch (OptimisticLockException e)
       {
-         return Response.status(Response.Status.CONFLICT).entity(e.getEntity()).build();
+         return ResponseEntity.status(HttpStatus.CONFLICT).build();
       }
-
-      return Response.noContent().build();
    }
 }

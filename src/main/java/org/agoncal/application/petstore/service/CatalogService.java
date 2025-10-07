@@ -5,11 +5,12 @@ import org.agoncal.application.petstore.model.Item;
 import org.agoncal.application.petstore.model.Product;
 import org.agoncal.application.petstore.util.Loggable;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.validation.constraints.NotNull;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
@@ -19,7 +20,7 @@ import java.util.List;
  *         --
  */
 
-@Stateless
+@Service
 @Loggable
 public class CatalogService implements Serializable {
 
@@ -27,7 +28,7 @@ public class CatalogService implements Serializable {
     // =             Attributes             =
     // ======================================
 
-    @Inject
+    @PersistenceContext
     private EntityManager em;
 
     // ======================================

@@ -1,49 +1,48 @@
 package org.agoncal.application.petstore.util;
 
-import javax.inject.Inject;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
-import java.io.Serializable;
-import java.util.logging.Logger;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Antonio Goncalves
  *         http://www.antoniogoncalves.org
  *         --
- *         This interceptor implements Serializable because it's used on a Stateful Session Bean who has
- *         passivation and activation lifecycle.
+ *         This interceptor has been converted from CDI Interceptor to Spring AOP Aspect
  */
 
-@Loggable
-@Interceptor
-public class LoggingInterceptor implements Serializable 
+@Aspect
+@Component
+public class LoggingInterceptor 
 {
 
     // ======================================
     // =             Attributes             =
     // ======================================
 
-    @Inject
-    private transient Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(LoggingInterceptor.class);
 
     // ======================================
     // =          Business methods          =
     // ======================================
 
-    @AroundInvoke
-    private Object intercept(InvocationContext ic) throws Exception
+    @Around("@within(org.agoncal.application.petstore.util.Loggable) || @annotation(org.agoncal.application.petstore.util.Loggable)")
+    public Object intercept(ProceedingJoinPoint pjp) throws Throwable
     {
-        logger.entering(ic.getTarget().getClass().getName(), ic.getMethod().getName());
-        logger.info(">>> " + ic.getTarget().getClass().getName() + "-" + ic.getMethod().getName());
+        String className = pjp.getTarget().getClass().getName();
+        String methodName = pjp.getSignature().getName();
+        
+        logger.info(">>> {}-{}", className, methodName);
         try 
         {
-            return ic.proceed();
+            return pjp.proceed();
         } 
         finally 
         {
-            logger.exiting(ic.getTarget().getClass().getName(), ic.getMethod().getName());
-            logger.info("<<< " + ic.getTarget().getClass().getName() + "-" + ic.getMethod().getName());
+            logger.info("<<< {}-{}", className, methodName);
         }
     }
 }

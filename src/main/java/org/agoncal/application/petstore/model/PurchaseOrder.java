@@ -1,8 +1,7 @@
 package org.agoncal.application.petstore.model;
 
-import javax.persistence.*;
-import javax.validation.Valid;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
@@ -11,7 +10,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "purchase_order")
-@XmlRootElement
 @NamedQueries({
          @NamedQuery(name = PurchaseOrder.FIND_ALL, query = "SELECT o FROM PurchaseOrder o")
 })

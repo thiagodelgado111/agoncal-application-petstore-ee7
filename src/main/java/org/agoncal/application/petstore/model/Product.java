@@ -1,10 +1,8 @@
 package org.agoncal.application.petstore.model;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -18,7 +16,6 @@ import java.util.Objects;
          @NamedQuery(name = Product.FIND_BY_CATEGORY_NAME, query = "SELECT p FROM Product p WHERE p.category.name = :pname"),
          @NamedQuery(name = Product.FIND_ALL, query = "SELECT p FROM Product p")
 })
-@XmlRootElement
 public class Product implements Serializable
 {
 
@@ -46,7 +43,6 @@ public class Product implements Serializable
 
    @ManyToOne(cascade = CascadeType.PERSIST)
    @JoinColumn(name = "category_fk", nullable = false)
-   @XmlTransient
    private Category category;
 
    // ======================================
